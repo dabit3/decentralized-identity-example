@@ -5,7 +5,6 @@ import { IDX } from '@ceramicstudio/idx'
 import { EthereumAuthProvider, ThreeIdConnect } from '@3id/connect'
 import { DID } from 'dids'
 import Web3Modal from 'web3modal'
-import KeyResolver from 'key-did-resolver'
 import ThreeIdResolver from '@ceramicnetwork/3id-did-resolver'
 
 const API_URL = "https://ceramic-clay.3boxlabs.com"
@@ -18,34 +17,39 @@ export default function Home() {
   const [localDid, setDid] = useState(null)
   const [idxInstance, setIdxInstance] = useState(null)
   async function connect() {
-    const web3Modal = new Web3Modal({
-      network: 'mainnet',
-      cacheProvider: true,
-    })
+    // const web3Modal = new Web3Modal({
+    //   network: 'mainnet',
+    //   cacheProvider: true,
+    // })
 
-    const ethProvider = await web3Modal.connect()
-    const addresses = await ethProvider.enable()   
+    // const ethProvider = await web3Modal.connect()
+    // const addresses = await ethProvider.enable()   
+    // const authProvider = new EthereumAuthProvider(ethProvider, addresses[0])
 
-    const authProvider = new EthereumAuthProvider(ethProvider, addresses[0])
-
+    const addresses = await window.ethereum.enable()
     const threeIdConnect = new ThreeIdConnect()
+    const authProvider = new EthereumAuthProvider(window.ethereum, addresses[0])
+
     await threeIdConnect.connect(authProvider)
     
     const did = new DID({
       provider: threeIdConnect.getDidProvider(),
-      resolver: {
-        ...KeyResolver.getResolver(),
-        ...ThreeIdResolver.getResolver(ceramic)
-      }
+      resolver: ThreeIdResolver.getResolver(ceramic)
     })
 
-    await did.authenticate()
+    // set did in local state
     setDid(did)
-    ceramic.did = did
+
+    // attach did to ceramic instance
+    ceramic.setDID(did)    
+    // authenticate with ceramic
+    await ceramic.did.authenticate()
+
     const idx = new IDX({ ceramic })
     setIdxInstance(idx)
+    console.log('about to get data from idx')
     const data = await idx.get('basicProfile', did.id)
-    console.log("data: ", data)
+    console.log('this is the data from idx: ', idx)
     setProfile(data)
     readProfile()
   }
@@ -94,8 +98,8 @@ export default function Home() {
               className="pt-4 shadow-md bg-purple-800 mt-4 mb-2 text-white font-bold py-2 px-4 rounded"
             >Connect Profile</button>
 
-          <input className="rounded bg-gray-100 px-3 py-2 my-2" placeholder="Bio" onChange={e => setBio(e.target.value)} />
-          <input className="rounded bg-gray-100 px-3 py-2" placeholder="Twitter username" onChange={e => setTwitter(e.target.value)} />
+          <input className="pt-4 rounded bg-gray-100 px-3 py-2 my-2" placeholder="Bio" onChange={e => setBio(e.target.value)} />
+          <input className="pt-4 rounded bg-gray-100 px-3 py-2" placeholder="Twitter username" onChange={e => setTwitter(e.target.value)} />
           <button className="pt-4 shadow-md bg-green-500 mt-2 mb-2 text-white font-bold py-2 px-4 rounded" onClick={updateProfile}>Update Profile</button>
           <button className="pt-4 shadow-md bg-blue-500 mb-2 text-white font-bold py-2 px-4 rounded" onClick={readProfile}>Read Profile</button>
         </div>
