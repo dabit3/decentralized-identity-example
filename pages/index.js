@@ -17,6 +17,8 @@ export default function Home() {
   const [profile, setProfile] = useState({})
   const [localDid, setDid] = useState(null)
   const [idxInstance, setIdxInstance] = useState(null)
+  const [loaded, setLoaded] = useState(false)
+  const [showGreeting, setShowGreeting] = useState(false)
   async function connect() {
     // const web3Modal = new Web3Modal({
     //   network: 'mainnet',
@@ -48,28 +50,27 @@ export default function Home() {
 
     const idx = new IDX({ ceramic })
     setIdxInstance(idx)
-    console.log('about to get data from idx')
     const data = await idx.get('basicProfile', did.id)
-    console.log('this is the data from idx: ', data)
+    setLoaded(true)
     if (data) {
       setProfile(data)
+    } else {
+      setShowGreeting(true)
     }
-    readProfile()
   }
   async function updateProfile() {
     if (twitter) profile.twitter = twitter
     if (bio) profile.bio = bio
     if (name) profile.name = name
-    const data = await idxInstance.set('basicProfile', profile)
-    console.log('data: ', data)
-    setProfileData()
+    await idxInstance.set('basicProfile', profile)
+    setLocalProfileData()
   }
   async function readProfile() {
     if (!localDid) return
     const data = await idxInstance.get('basicProfile', localDid.id)
     console.log('data: ', data)
   }
-  async function setProfileData() {
+  async function setLocalProfileData() {
     const data = await idxInstance.get('basicProfile', localDid.id)
     if (!data) return
     setProfile(data)
@@ -90,24 +91,38 @@ export default function Home() {
 
             {
               Object.keys(profile).length ? (
-                <>
+                <div className="mb-4">
                   <h2 className="text-2xl font-semibold mt-6">{profile.name}</h2>
                   <p className="text-gray-500 text-sm my-1">{profile.bio}</p>
                   <p className="text-lg	text-gray-900">Follow me on Twitter - @{profile.twitter}</p>
-                </>
+                </div>
               ) : null
             }
 
-            <button
+          {
+            !loaded && (
+              <button
               onClick={connect}
               className="pt-4 shadow-md bg-purple-800 mt-4 mb-2 text-white font-bold py-2 px-4 rounded"
             >Connect Profile</button>
-
-          <input className="pt-4 rounded bg-gray-100 px-3 py-2" placeholder="Name" onChange={e => setName(e.target.value)} />
-          <input className="pt-4 rounded bg-gray-100 px-3 py-2 my-2" placeholder="Bio" onChange={e => setBio(e.target.value)} />
-          <input className="pt-4 rounded bg-gray-100 px-3 py-2" placeholder="Twitter username" onChange={e => setTwitter(e.target.value)} />
-          <button className="pt-4 shadow-md bg-green-500 mt-2 mb-2 text-white font-bold py-2 px-4 rounded" onClick={updateProfile}>Update Profile</button>
-          <button className="pt-4 shadow-md bg-blue-500 mb-2 text-white font-bold py-2 px-4 rounded" onClick={readProfile}>Read Profile</button>
+            )
+          }
+          {
+            loaded && showGreeting && (
+              <p>You have no profile yet. Please create one!</p>
+            )
+          }
+          {
+            loaded && (
+              <>
+                <input className="pt-4 rounded bg-gray-100 px-3 py-2" placeholder="Name" onChange={e => setName(e.target.value)} />
+                <input className="pt-4 rounded bg-gray-100 px-3 py-2 my-2" placeholder="Bio" onChange={e => setBio(e.target.value)} />
+                <input className="pt-4 rounded bg-gray-100 px-3 py-2" placeholder="Twitter username" onChange={e => setTwitter(e.target.value)} />
+                <button className="pt-4 shadow-md bg-green-500 mt-2 mb-2 text-white font-bold py-2 px-4 rounded" onClick={updateProfile}>Update Profile</button>
+                <button className="pt-4 shadow-md bg-blue-500 mb-2 text-white font-bold py-2 px-4 rounded" onClick={readProfile}>Read Profile</button>
+              </>
+            )
+          }
         </div>
       </div>
     </div>
