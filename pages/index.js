@@ -7,9 +7,11 @@ import { DID } from 'dids'
 import Web3Modal from 'web3modal'
 import ThreeIdResolver from '@ceramicnetwork/3id-did-resolver'
 
-// const API_URL = "https://ceramic-clay.3boxlabs.com"
-const API_URL = "http://localhost:7007"
+const API_URL = "https://ceramic-clay.3boxlabs.com"
+// const API_URL = "http://localhost:7007"
 const ceramic = new CeramicClient(API_URL)
+
+import { connectIdx } from '../components/identity'
 
 export default function Home() {
   const [bio, setBio] = useState('')
@@ -30,7 +32,8 @@ export default function Home() {
     // const addresses = await ethProvider.enable()   
     // const authProvider = new EthereumAuthProvider(ethProvider, addresses[0])
 
-    const addresses = await window.ethereum.enable()
+    const addresses = await window.ethereum.request({ method: 'eth_requestAccounts' })
+    
     const threeIdConnect = new ThreeIdConnect()
     const authProvider = new EthereumAuthProvider(window.ethereum, addresses[0])
 
@@ -53,6 +56,20 @@ export default function Home() {
     setIdxInstance(idx)
     const data = await idx.get('basicProfile', did.id)
     setLoaded(true)
+    if (data) {
+      setProfile(data)
+    } else {
+      setShowGreeting(true)
+    }
+  }
+  async function connect2() {
+    const {
+      did, idx
+    } = await connectIdx()
+    setDid(did)
+    setIdxInstance(idx)
+    setLoaded(true)
+    const data = await idx.get('basicProfile', did.id)
     if (data) {
       setProfile(data)
     } else {
@@ -102,10 +119,16 @@ export default function Home() {
 
           {
             !loaded && (
+              <>
               <button
               onClick={connect}
               className="pt-4 shadow-md bg-purple-800 mt-4 mb-2 text-white font-bold py-2 px-4 rounded"
             >Connect Profile</button>
+                          <button
+              onClick={connect2}
+              className="pt-4 shadow-md bg-purple-800 mt-4 mb-2 text-white font-bold py-2 px-4 rounded"
+            >Connect With Provider</button>
+            </>
             )
           }
           {
