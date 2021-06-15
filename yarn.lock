@@ -314,10 +314,10 @@
     caip "^0.9.2"
     cross-fetch "^3.1.4"
 
-"@dabit3/decentralized-identity@^0.3.1":
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/@dabit3/decentralized-identity/-/decentralized-identity-0.3.1.tgz#30b566779ee4a3d97ec64ddbd14ed1af44e42f98"
-  integrity sha512-MYmSbKZoktLtKV5gfBUb9KKop8pU98qp8MaLTIzz7FYoefMyX1toE8FhljQ/sCyH8mE00QlFpyZ2ssA8CEitmw==
+"@dabit3/decentralized-identity@^0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@dabit3/decentralized-identity/-/decentralized-identity-0.3.3.tgz#64e42fb66f1952f2e60f21cb1db8a320f86c482a"
+  integrity sha512-iHf/s1uwxUfc7t3fv9+4gc7hdrx4HgxDS2QRlVuJpyiUnuSnovCRgQfdS+3qKn9XrADLWfPPgg+Zd4181fCgNw==
   dependencies:
     "@3id/connect" "^0.1.6"
     "@ceramicnetwork/3id-did-resolver" "^1.2.6"

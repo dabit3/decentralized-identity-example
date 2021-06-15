@@ -16,9 +16,11 @@ export default function Home() {
   const [showGreeting, setShowGreeting] = useState(false)
 
   async function connect() {
+    const cdata = await client()
+    console.log('cdata: ', cdata)
     const {
       did, idx, error
-    } = await client()
+    } = cdata
     if (error) {
       console.log('error: ', error)
       return
