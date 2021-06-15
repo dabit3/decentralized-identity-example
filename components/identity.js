@@ -4,12 +4,8 @@ import { IDX } from '@ceramicstudio/idx'
 import { EthereumAuthProvider, ThreeIdConnect } from '@3id/connect'
 import { DID } from 'dids'
 
-// @ts-ignore
 const ceramicProvider = CeramicClient.default ? CeramicClient.default : CeramicClient;
-
-// @ts-ignore
 const threeIdProvider = ThreeIdResolver.default ? ThreeIdResolver.default : ThreeIdResolver;
-
 
 async function client({
   endpoint = "https://ceramic-clay.3boxlabs.com",
