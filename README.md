@@ -13,7 +13,7 @@ To get up and running with this project:
 2. Clone the project
 
 ```sh
-git clone https://github.com/dabit3/decentralized-identity.git
+git clone https://github.com/dabit3/decentralized-identity-example.git
 ```
 
 3. Change into the directory, install dependencies, then start the server:
