@@ -1,10 +1,10 @@
 import CeramicClient from '@ceramicnetwork/http-client'
+import ThreeIdResolver from '@ceramicnetwork/3id-did-resolver'
 import { IDX } from '@ceramicstudio/idx'
 import { EthereumAuthProvider, ThreeIdConnect } from '@3id/connect'
 import { DID } from 'dids'
-import ThreeIdResolver from '@ceramicnetwork/3id-did-resolver'
 
-export async function connectIdx({
+async function connectIdx({
   endpoint = "https://ceramic-clay.3boxlabs.com",
   resolvers = null,
   address = null,
@@ -66,4 +66,13 @@ export async function connectIdx({
   return {
     ceramic, did, idx
   }
+}
+
+function addNumber(value, value2) {
+  return value + value2;
+}
+
+export {
+  connectIdx,
+  addNumber
 }
