@@ -22,7 +22,6 @@ async function client({
   }
 
   if (!ceramicClient) {
-    // @ts-ignore
     ceramic = new ceramicProvider(endpoint)
   } else {
     ceramic = ceramicClient
@@ -30,7 +29,6 @@ async function client({
 
   if (!resolvers) {
     resolvers = {
-      // @ts-ignore
       ...threeIdProvider.getResolver(ceramic)
     }
   } else {
@@ -90,7 +88,6 @@ async function readOnlyClient({
   }
 
   if (!ceramicClient) {
-    // @ts-ignore
     ceramic = new ceramicProvider(endpoint)
   } else {
     ceramic = ceramicClient
@@ -134,7 +131,6 @@ async function getRecord({
   }
 
   if (!ceramicClient) {
-    // @ts-ignore
     ceramic = new ceramicProvider(endpoint)
   } else {
     ceramic = ceramicClient
