@@ -3,7 +3,7 @@ import { useState } from 'react'
 import {
   client,
   getRecord
-} from '../components/identity'
+} from '../utils/identity'
 
 export default function Home() {
   const [bio, setBio] = useState('')
