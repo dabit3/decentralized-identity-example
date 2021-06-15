@@ -12,7 +12,6 @@
     "@ceramicnetwork/3id-did-resolver": "^1.2.6",
     "@ceramicnetwork/http-client": "^1.0.5",
     "@ceramicstudio/idx": "^0.12.1",
-    "@dabit3/decentralized-identity": "^0.3.3",
     "dids": "^2.1.0",
     "ethers": "^5.3.0",
     "key-did-resolver": "^1.2.1",

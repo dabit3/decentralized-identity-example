@@ -3,7 +3,7 @@ import { useState } from 'react'
 import {
   client,
   getRecord
-} from '@dabit3/decentralized-identity'
+} from '../components/identity'
 
 export default function Home() {
   const [bio, setBio] = useState('')
