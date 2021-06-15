@@ -67,7 +67,7 @@ export default function Home() {
             <h1 className="text-5xl text-center">
               Decentralized Identity
             </h1>
-            <p className="text-xl text-center mt-2 text-gray-400">An authentication system built with Ceramic & IDX</p>
+            <p className="text-xl text-center mt-2 text-gray-400">An authentication flow built with Ceramic & IDX</p>
 
             {
               Object.keys(profile).length ? (
