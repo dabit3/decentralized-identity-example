@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import {
   client,
   getRecord
@@ -14,13 +14,14 @@ export default function Home() {
   const [idxInstance, setIdxInstance] = useState(null)
   const [loaded, setLoaded] = useState(false)
   const [showGreeting, setShowGreeting] = useState(false)
+  const idxRef = useRef(null)
+  const didRef = useRef(null)
+  idxRef.current = idxInstance
+  didRef.current = localDid
 
   async function connect() {
     const cdata = await client()
-    console.log('cdata: ', cdata)
-    const {
-      did, idx, error
-    } = cdata
+    const { did, idx, error } = cdata
     if (error) {
       console.log('error: ', error)
       return
@@ -37,23 +38,36 @@ export default function Home() {
   }
   
   async function updateProfile() {
-    if (twitter) profile.twitter = twitter
-    if (bio) profile.bio = bio
-    if (name) profile.name = name
-    await idxInstance.set('basicProfile', profile)
+    if (!idxInstance) {
+      await connect()
+    }
+    const user = {}
+    if (twitter) user.twitter = twitter
+    if (bio) user.bio = bio
+    if (name) user.name = name
+    await idxRef.current.set('basicProfile', user)
     setLocalProfileData()
   }
   async function readProfile() {
-    const { record } = await getRecord()
-    console.log('record: ', record)
-    if (record) {
-      setProfile(record)
+    try {
+      const { record } = await getRecord()
+      if (record) {
+        setProfile(record)
+      }
+    } catch (error) {
+      setShowGreeting(true)
     }
+    setLoaded(true)
   }
   async function setLocalProfileData() {
-    const data = await idxInstance.get('basicProfile', localDid.id)
-    if (!data) return
-    setProfile(data)
+    try {
+      const data = await idxRef.current.get('basicProfile', didRef.current.id)
+      if (!data) return
+      setProfile(data)
+      setShowGreeting(false)
+    } catch (error) {
+      console.log('error', error)
+    }
   }
   return (
     <div>
@@ -93,7 +107,7 @@ export default function Home() {
           }
           {
             loaded && showGreeting && (
-              <p>You have no profile yet. Please create one!</p>
+              <p className="my-4 font-bold text-center">You have no profile yet. Please create one!</p>
             )
           }
           {
