@@ -6,6 +6,18 @@ The technologies used are [DID (decentralized identifiers)](https://www.w3.org/T
 
 ![Decentralized identity](header.png)
 
+### Running this project
+
+#### Gitpod
+
+To deploy this project to Gitpod, follow these steps:
+
+1. Click this link to deploy
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#github.com/dabit3/decentralized-identity-example)
+
+#### Local development
+
 To get up and running with this project:
 
 1. Install an Ethereum wallet like [MetaMask](https://metamask.io/)

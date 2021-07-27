@@ -28,26 +28,32 @@ export default function Home() {
     }
     setDid(did)
     setIdxInstance(idx)
-    setLoaded(true)
     const data = await idx.get('basicProfile', did.id)
     if (data) {
       setProfile(data)
     } else {
       setShowGreeting(true)
     }
+    setLoaded(true)
   }
-  
+
   async function updateProfile() {
+    if (!twitter && !bio && !name) {
+      console.log('error... no profile information submitted')
+      return
+    }
     if (!idxInstance) {
       await connect()
     }
-    const user = {}
+    const user = {...profile}
     if (twitter) user.twitter = twitter
     if (bio) user.bio = bio
     if (name) user.name = name
     await idxRef.current.set('basicProfile', user)
     setLocalProfileData()
+    console.log('profile updated...')
   }
+
   async function readProfile() {
     try {
       const { record } = await getRecord()
@@ -59,6 +65,7 @@ export default function Home() {
     }
     setLoaded(true)
   }
+
   async function setLocalProfileData() {
     try {
       const data = await idxRef.current.get('basicProfile', didRef.current.id)
@@ -69,6 +76,7 @@ export default function Home() {
       console.log('error', error)
     }
   }
+
   return (
     <div>
       <Head>

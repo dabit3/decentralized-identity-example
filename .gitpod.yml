@@ -1,0 +1,7 @@
+tasks:
+  - name: Install and start
+    init: yarn
+    command: npm run dev
+ports:
+  - port: 3000
+    visibility: public
