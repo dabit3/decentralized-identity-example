@@ -2,7 +2,7 @@
 
 This project implements a user authentication flow leveraging an Ethereum wallet for single sign on capabilities across all of Web3.
 
-The technologies used are [DID (decentralized identifiers)](https://www.w3.org/TR/did-core/), [Ceramic](https://ceramic.network/), [3id-connect](https://github.com/ceramicstudio/3id-connect), and [IDX](https://developers.idx.xyz/learn/welcome/).
+The technologies used are [DID (decentralized identifiers)](https://www.w3.org/TR/did-core/), [Ceramic](https://ceramic.network/), [3id-connect](https://github.com/ceramicstudio/3id-connect), and [Self.ID](https://developers.ceramic.network/tools/self-id/overview/).
 
 ![Decentralized identity](header.png)
 
