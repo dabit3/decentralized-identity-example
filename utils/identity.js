@@ -1,101 +1,42 @@
-import CeramicClient from '@ceramicnetwork/http-client'
-import ThreeIdResolver from '@ceramicnetwork/3id-did-resolver'
-import { IDX } from '@ceramicstudio/idx'
-import { EthereumAuthProvider, ThreeIdConnect } from '@3id/connect'
-import { DID } from 'dids'
+import { Core } from '@self.id/core'
+const SID = require('@self.id/web')
+const { EthereumAuthProvider, SelfID, WebClient } = SID
 
-const ceramicProvider = CeramicClient.default ? CeramicClient.default : CeramicClient;
-const threeIdProvider = ThreeIdResolver.default ? ThreeIdResolver.default : ThreeIdResolver;
-
-async function client({
-  endpoint = "https://ceramic-clay.3boxlabs.com",
-  resolvers = null,
+async function webClient({
+  ceramicNetwork = 'testnet-clay',
+  connectNetwork = 'testnet-clay',
   address = '',
   provider = null,
-  ceramicClient = null
+  client = null
 } = {}) {
-  let ceramic;
   let ethereum = window.ethereum;
 
   if (!ethereum) return {
     error: "No ethereum wallet detected"
   }
 
-  if (!ceramicClient) {
-    ceramic = new ceramicProvider(endpoint)
-  } else {
-    ceramic = ceramicClient
-  }
-
-  if (!resolvers) {
-    resolvers = {
-      ...threeIdProvider.getResolver(ceramic)
-    }
-  } else {
-    resolvers = resolvers.reduce((acc, next) => {
-      if (next.requiresCeramic) {
-        let resolver = next.resolver.call(this, ceramic)
-        acc = {
-          ...acc,
-          ...resolver
-        }
-      } else {
-        acc = {
-          ...acc,
-          ...next.resolver
-        }
-      }
-      return acc
-    }, {})
+  if (!client) {
+    client = new WebClient({
+      ceramic: ceramicNetwork,
+      connectNetwork
+    })
   }
 
   if (!address) {
-    const addresses = await ethereum.request({ method: 'eth_requestAccounts' })
-    address = addresses[0]
+    [address] = await ethereum.request({ method: 'eth_requestAccounts' })
   }
-
-  const threeIdConnect = new ThreeIdConnect()
 
   if (!provider) {
-    provider = new EthereumAuthProvider(ethereum, address)
+    provider = new EthereumAuthProvider(window.ethereum, address)
   }
 
-  await threeIdConnect.connect(provider)
+  await client.authenticate(provider)
 
-  const did = new DID({
-    provider: threeIdConnect.getDidProvider(),
-    resolver: resolvers
-  })
-
-  ceramic.setDID(did) 
-  await ceramic.did.authenticate()
-  const idx = new IDX({ ceramic })
+  const selfId = new SelfID({ client })
+  const id = selfId.did._id
 
   return {
-    ceramic, did, idx, error: null
-  }
-}
-
-async function readOnlyClient({
-  endpoint = "https://ceramic-clay.3boxlabs.com",
-  ceramicClient = null,
-} = {}) {
-  let ceramic;
-  let ethereum = window.ethereum;
-
-  if (!ethereum) return {
-    error: "No ethereum wallet detected"
-  }
-
-  if (!ceramicClient) {
-    ceramic = new ceramicProvider(endpoint)
-  } else {
-    ceramic = ceramicClient
-  }
-
-  const idx = new IDX({ ceramic })
-  return {
-    idx, ceramic, error: null
+    client, id, selfId, error: null
   }
 }
 
@@ -114,15 +55,15 @@ const caip10Links = {
 }
 
 /*
-CAIP-10 Account IDs is a blockchain agnostic way to describe an account on any blockchain. This may be an externally owned key-pair account, or a smart contract account. IDX uses CAIP-10s as a way to lookup the DID of a user using a caip10-link streamType in Ceramic. Learn more in the Ceramic documentation.
+CAIP-10 Account IDs is a blockchain agnostic way to describe an account on any blockchain. This may be an externally owned key-pair account, or a smart contract account. Ceramic uses CAIP-10s as a way to lookup the DID of a user using a caip10-link streamType in Ceramic. Learn more in the Ceramic documentation.
 */
 async function getRecord({
-  endpoint = "https://ceramic-clay.3boxlabs.com",
+  ceramicNetwork = 'testnet-clay',
   network = 'ethereum',
-  ceramicClient = null,
-  schema = 'basicProfile'
+  client = null,
+  schema = 'basicProfile',
+  address = null
 } = {}) {
-  let ceramic;
   let ethereum = window.ethereum;
   let record;
 
@@ -130,26 +71,24 @@ async function getRecord({
     error: "No ethereum wallet detected"
   }
 
-  if (!ceramicClient) {
-    ceramic = new ceramicProvider(endpoint)
-  } else {
-    ceramic = ceramicClient
+  if (!client) {
+    client = new Core({ ceramic: ceramicNetwork })
   }
 
-  if (network === networks.ethereum) {
-    const addresses = await ethereum.request({ method: 'eth_requestAccounts' })
-    const address = addresses[0]
-    const idx = new IDX({ ceramic })
-    const data = await idx.get(schema, `${address}${caip10Links.ethereum}`)
-    record = data
+  if (!address) {
+   [address] = await ethereum.request({ method: 'eth_requestAccounts' })
   }
+  const capLink = caip10Links[network]
+  const did = await client.getAccountDID(`${address}${capLink}`)
+  
+  record = await client.get(schema, did)
+  console.log('record: ', record)
   return {
     record, error: null
   }
 }
 
 export {
-  getRecord,
-  readOnlyClient,
-  client
+  webClient,
+  getRecord
 }

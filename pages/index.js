@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import { useState, useRef } from 'react'
 import {
-  client,
+  webClient,
   getRecord
 } from '../utils/identity'
 
@@ -11,24 +11,24 @@ export default function Home() {
   const [name, setName] = useState('')
   const [profile, setProfile] = useState({})
   const [localDid, setDid] = useState(null)
-  const [idxInstance, setIdxInstance] = useState(null)
+  const [selfId, setSelfId] = useState(null)
   const [loaded, setLoaded] = useState(false)
   const [showGreeting, setShowGreeting] = useState(false)
-  const idxRef = useRef(null)
+  const selfIdRef = useRef(null)
   const didRef = useRef(null)
-  idxRef.current = idxInstance
+  selfIdRef.current = selfId
   didRef.current = localDid
 
   async function connect() {
-    const cdata = await client()
-    const { did, idx, error } = cdata
+    const cdata = await webClient()
+    const { id, selfId, error } = cdata
     if (error) {
       console.log('error: ', error)
       return
     }
-    setDid(did)
-    setIdxInstance(idx)
-    const data = await idx.get('basicProfile', did.id)
+    setDid(id)
+    setSelfId(selfId)
+    const data = await selfId.get('basicProfile', id)
     if (data) {
       setProfile(data)
     } else {
@@ -42,14 +42,14 @@ export default function Home() {
       console.log('error... no profile information submitted')
       return
     }
-    if (!idxInstance) {
+    if (!selfId) {
       await connect()
     }
     const user = {...profile}
     if (twitter) user.twitter = twitter
     if (bio) user.bio = bio
     if (name) user.name = name
-    await idxRef.current.set('basicProfile', user)
+    await selfIdRef.current.set('basicProfile', user)
     setLocalProfileData()
     console.log('profile updated...')
   }
@@ -59,6 +59,8 @@ export default function Home() {
       const { record } = await getRecord()
       if (record) {
         setProfile(record)
+      } else {
+        setShowGreeting(true)
       }
     } catch (error) {
       setShowGreeting(true)
@@ -68,7 +70,7 @@ export default function Home() {
 
   async function setLocalProfileData() {
     try {
-      const data = await idxRef.current.get('basicProfile', didRef.current.id)
+      const data = await selfIdRef.current.get('basicProfile', didRef.current.id)
       if (!data) return
       setProfile(data)
       setShowGreeting(false)
@@ -96,7 +98,11 @@ export default function Home() {
                 <div className="mb-4">
                   <h2 className="text-2xl font-semibold mt-6">{profile.name}</h2>
                   <p className="text-gray-500 text-sm my-1">{profile.bio}</p>
-                  <p className="text-lg	text-gray-900">Follow me on Twitter - @{profile.twitter}</p>
+                  {
+                    profile.twitter && (
+                      <p className="text-lg	text-gray-900">Follow me on Twitter - @{profile.twitter}</p>
+                    )
+                  }
                 </div>
               ) : null
             }
